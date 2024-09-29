@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="{{ title }}">
+    <meta property="og:video" content="/file/{{ filename }}">
+    <meta property="og:type" content="video.other">
+    <title>{{ title }}</title>
+</head>
+<body>
+    <h1 id="url" class="url"></h1>
+    <video src="/file/{{ filename }}" controls width="50%" height="50%" class="main">
+        <source src="/file/{{ filename }}" type="video/*">
+    </video>
+</body>
+</html>
+
+<style>
+    body {
+        background-color: black;
+    }
+
+    .main {
+        position: absolute;
+        left: 50%;
+        text-align: center;
+        transform: translate(-50%, -50%);
+        top: 50%;
+        font-size: xx-large;
+    }
+
+    .url {
+        font-size: xx-large;
+        color:ivory;
+        text-align: center;
+    }
+
+</style>
+
+<script>
+    document.getElementById("url").innerHTML = "Your url is: <br><pre><code>" + document.location.href + "</code></pre>";
+</script>

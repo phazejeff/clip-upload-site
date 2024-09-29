@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <title>Clip Upload</title>
+</head>
+
+<body>
+    <h1 class="title">Clip Upload</h1>
+    <div class="main">
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" class="button" accept="video/*"><br><br>
+            <label for="password">Password: </label>
+            <input type="password" name="password" class="button">
+            <input type="submit" value="Upload" class="button">
+        </form>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <p style="color: red;">{{ messages[0] }}</p>
+        {% endif %}
+        {% endwith %}
+    </div>
+</body>
+</html>
+
+<style>
+    .title {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: xxx-large;
+        text-decoration: underline;
+    }
+
+    .main {
+        position: absolute;
+        left: 50%;
+        text-align: center;
+        transform: translate(-50%, -50%);
+        top: 50%;
+        font-size: xx-large;
+    }
+
+    .button {
+        font-size: xx-large;
+    }
+</style>
+
+<script>
+    function upload() {
+
+    }
+</script>
