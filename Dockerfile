@@ -6,6 +6,7 @@ RUN pip3 install -r requirements.txt
 
 COPY app.py .
 COPY templates ./templates
+COPY static ./static
 
 ARG workers=4
 ENV WORKERS=${workers}

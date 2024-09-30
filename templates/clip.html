@@ -6,38 +6,20 @@
     <meta property="og:title" content="{{ title }}">
     <meta property="og:video" content="/file/{{ filename }}">
     <meta property="og:type" content="video.other">
+    <link rel="stylesheet" href="{{ url_for('static', filename='clip.css') }}">
     <title>{{ title }}</title>
 </head>
 <body>
-    <h1 id="url" class="url"></h1>
-    <video src="/file/{{ filename }}" controls width="50%" height="50%" class="main">
+    <div class="url-container">
+        <h1 id="url" class="url"></h1>
+    </div>
+    <!-- Video block -->
+    <video src="/file/{{ filename }}" class="main" controls>
         <source src="/file/{{ filename }}" type="video/*">
+        Your browser does not support the video tag.
     </video>
+    <script>
+        document.getElementById("url").innerHTML = "Your URL is: <br><br><pre>" + document.location.href + "</pre>";
+    </script>
 </body>
 </html>
-
-<style>
-    body {
-        background-color: black;
-    }
-
-    .main {
-        position: absolute;
-        left: 50%;
-        text-align: center;
-        transform: translate(-50%, -50%);
-        top: 50%;
-        font-size: xx-large;
-    }
-
-    .url {
-        font-size: xx-large;
-        color:ivory;
-        text-align: center;
-    }
-
-</style>
-
-<script>
-    document.getElementById("url").innerHTML = "Your url is: <br><pre><code>" + document.location.href + "</code></pre>";
-</script>

@@ -1,0 +1,92 @@
+body {
+    background-color: #121212;
+    color: #FFFFFF;
+    font-family: 'Roboto', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column; 
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    background-color: #1E1E1E;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+    text-align: center;
+}
+
+.title {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: #BB86FC;
+    text-transform: uppercase;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.button {
+    background-color: #333;
+    color: #FFFFFF;
+    border: none;
+    padding: 15px 20px;
+    font-size: 1rem;
+    border-radius: 5px;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: #444;
+}
+
+input[type="password"], input[type="file"] {
+    background-color: #2C2C2C;
+    border: 1px solid #BB86FC;
+    color: white;
+    padding: 12px;
+    width: 90%;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    border-radius: 5px;
+}
+
+input[type="password"]::placeholder {
+    color: #AAAAAA;
+}
+
+label {
+    font-size: 1.1rem;
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #FFFFFF;
+}
+
+.messages {
+    color: #F44336;
+    margin-top: 1rem;
+}
+
+@media (max-width: 500px) {
+    .title {
+        font-size: 2rem;
+    }
+
+    .button {
+        font-size: 0.9rem;
+        padding: 12px 15px;
+    }
+
+    input[type="password"], input[type="file"] {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+}
