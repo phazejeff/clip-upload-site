@@ -49,4 +49,5 @@ def clip(filename: str):
     f.close()
     return render_template("clip.html", title=title, filename=filename)
 
-app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True)
