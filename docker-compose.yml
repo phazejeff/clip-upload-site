@@ -1,0 +1,9 @@
+services:
+  flask-app:
+    image: clip-upload-site:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./uploads:/app/uploads
+    environment:
+      - password=changeme

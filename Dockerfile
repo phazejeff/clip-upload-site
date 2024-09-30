@@ -8,5 +8,6 @@ COPY app.py .
 COPY templates ./templates
 
 ARG workers=4
+ENV WORKERS=${workers}
 
-CMD ["gunicorn", "-w", workers, "app:app"]
+CMD gunicorn -w $WORKERS -b 0.0.0.0 app:app
