@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="{{ title }}">
-    <meta property="og:video" content="/file/{{ filename }}">
+    <meta property="og:video:url" content="/file/{{ filename }}">
     <meta property="og:type" content="video.other">
+    <meta property="og:video:width" content="1280">
+    <meta property="og:video:height" content="720">
+    <meta property="og:image" content="/file/{{ img }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='clip.css') }}">
     <title>{{ title }}</title>
 </head>

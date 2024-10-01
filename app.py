@@ -2,6 +2,7 @@ from flask import Flask
 from flask import render_template, request, redirect, flash, url_for, send_from_directory
 import os
 import hashlib
+from video import write_first_frame
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -31,6 +32,8 @@ def upload():
         f = open(UPLOAD_DIR + hash + ".txt", "w+")
         f.write(name)
         f.close()
+        write_first_frame(UPLOAD_DIR, hash, extension)
+        
         return redirect(url_for("clip", filename = hash + extension))
     else:
         flash("Incorrect Password")
@@ -47,7 +50,8 @@ def clip(filename: str):
     f = open(UPLOAD_DIR + hash + ".txt")
     title = f.read()
     f.close()
-    return render_template("clip.html", title=title, filename=filename)
+    img = hash + ".jpg"
+    return render_template("clip.html", title=title, filename=filename, img=img)
 
 if __name__ == "__main__":
     app.run(debug=True)
