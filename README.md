@@ -6,3 +6,5 @@ Discord recently changed their maximum upload file limit to a mere 10 mb, so I c
 
 ## Usage
 The recommended usage is via docker. The repo has a sample [docker-compose.yml](/docker-compose.yml)
+
+Set a password in the docker-compose, and then just run `docker compose up` to deploy
