@@ -13,4 +13,5 @@ Set a password in the docker-compose, and then just run `docker compose up` to d
 
 ![Upload Screen](https://i.imgur.com/GouYewr.png)
 ![Video Screen](https://github.com/user-attachments/assets/5ce4d098-d37c-458d-87f2-f46fc087670a)
-![discord embed](https://github.com/user-attachments/assets/73a1aa70-bfb0-4882-a527-04a88079d303)
+![Discord Embed](https://github.com/user-attachments/assets/ecf1167e-c4c1-47f0-b99a-900e119710a2)
+
