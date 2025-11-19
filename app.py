@@ -53,5 +53,16 @@ def clip(filename: str):
     img = hash + ".jpg"
     return render_template("clip.html", title=title, filename=filename, img=img)
 
+@app.route("/api/clips")
+def clips_api():
+    all_clips = []
+    for filename in os.listdir(UPLOAD_DIR):
+        if filename.endswith(".txt"):
+            hash = filename.removesuffix(".txt")
+            with open(os.path.join(UPLOAD_DIR, filename)) as f:
+                title = f.read()
+            all_clips.append({hash : title})
+    return all_clips
+
 if __name__ == "__main__":
     app.run(debug=True)
