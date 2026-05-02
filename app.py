@@ -30,9 +30,9 @@ def upload():
             flash("Invalid filetype.")
             return redirect("/")
 
-        file.save(UPLOAD_DIR + hash + extension)
+        file.save(os.path.join(UPLOAD_DIR, hash + extension))
         file.close()
-        f = open(UPLOAD_DIR + hash + ".txt", "w+")
+        f = open(os.path.join(UPLOAD_DIR, hash + ".txt"), "w+")
         f.writelines([name, "\n", request.form.get("public")])
         f.close()
         write_first_frame(UPLOAD_DIR, hash, extension)
@@ -50,7 +50,7 @@ def file(filename: str):
 def clip(filename: str):
     extension = "." + filename.split(".")[-1]
     hash = filename.removesuffix(extension)
-    f = open(UPLOAD_DIR + hash + ".txt")
+    f = open(os.path.join(UPLOAD_DIR, hash + ".txt"))
     title = f.readline()
     f.close()
     img = hash + ".jpg"
@@ -99,7 +99,7 @@ def edit_clip(filename: str):
         return "Unauthorized", 401
     extension = "." + filename.split(".")[-1]
     hash = filename.removesuffix(extension)
-    f = open(UPLOAD_DIR + hash + ".txt", "w")
+    f = open(os.path.join(UPLOAD_DIR, hash + ".txt"), "w")
     f.writelines([request.form.get("title"), "\n", request.form.get("public")])
     f.close()
     return "Success", 200
