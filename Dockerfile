@@ -1,28 +1,24 @@
 FROM python:3
 
 RUN apt-get update && apt-get install -y \
-    ffmpeg \
-    libglib2.0-0 \
-    libgl1-mesa-dri \
-    libglx-mesa0 \
-    curl \
+    ffmpeg libglib2.0-0 libgl1-mesa-dri libglx-mesa0 curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+# install uv
+ADD https://astral.sh/uv/install.sh /install.sh
+RUN sh /install.sh && rm /install.sh
 ENV PATH="/root/.local/bin:$PATH"
 
 WORKDIR /app
 
-COPY pyproject.toml .
+# copy only dependency files first (better caching)
+COPY pyproject.toml uv.lock* ./
 
-# Install dependencies
-RUN uv sync --system
+# install dependencies into uv-managed environment
+RUN uv sync --frozen
 
-COPY app.py .
-COPY video.py .
-COPY templates ./templates
-COPY static ./static
+# copy app
+COPY . .
 
 ARG workers=4
 ENV WORKERS=${workers}
