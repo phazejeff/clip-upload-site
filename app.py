@@ -51,7 +51,7 @@ def clip(filename: str):
     extension = "." + filename.split(".")[-1]
     hash = filename.removesuffix(extension)
     f = open(UPLOAD_DIR + hash + ".txt")
-    title = f.read()
+    title = f.readline()
     f.close()
     img = hash + ".jpg"
     return render_template("clip.html", title=title, filename=filename, img=img)
@@ -63,8 +63,10 @@ def clips_api():
         if not filename.endswith(".txt") and not filename.endswith(".jpg"):
             hash = filename.removesuffix("." + filename.split(".")[-1])
             with open(os.path.join(UPLOAD_DIR, hash + ".txt")) as f:
-                title = f.read()
-            all_clips.append({filename : title})
+                title = f.readline()
+                public = f.readline()
+            if "True" in public:
+                all_clips.append({filename : title})
     return all_clips
 
 @app.route("/photo/<filename>")
