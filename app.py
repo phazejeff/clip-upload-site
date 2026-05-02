@@ -20,7 +20,7 @@ def main():
 
 @app.route("/upload", methods=["POST"])
 def upload():
-    if request.form['password'] == PASSWORD:
+    if request.form.get("password") == PASSWORD:
         file = request.files["file"]
         hash = hashlib.md5(file.stream.read()).hexdigest()
         file.stream.seek(0)
@@ -33,7 +33,7 @@ def upload():
         file.save(UPLOAD_DIR + hash + extension)
         file.close()
         f = open(UPLOAD_DIR + hash + ".txt", "w+")
-        f.write(name)
+        f.writelines([name, "\n", request.form.get("public")])
         f.close()
         write_first_frame(UPLOAD_DIR, hash, extension)
         
@@ -65,7 +65,7 @@ def clips_api():
             with open(os.path.join(UPLOAD_DIR, hash + ".txt")) as f:
                 title = f.readline()
                 public = f.readline()
-            if "True" in public:
+            if "true" in public:
                 all_clips.append({filename : title})
     return all_clips
 
