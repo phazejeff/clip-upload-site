@@ -1,5 +1,8 @@
-from flask import Flask
+import io
+
+from flask import Flask, send_file
 from flask import render_template, request, redirect, flash, url_for, send_from_directory
+from PIL import Image
 import os
 import hashlib
 from video import write_first_frame
@@ -63,6 +66,24 @@ def clips_api():
                 title = f.read()
             all_clips.append({hash : title})
     return all_clips
+
+@app.route("/photo/<filename>")
+def photo(filename: str, quality: int = 30):
+    if not filename.endswith(".jpg"):
+        return "Invalid filetype", 400
+    
+    filepath = os.path.join(UPLOAD_DIR, filename)
+    
+    img = Image.open(filepath)
+    img_io = io.BytesIO()
+    img.save(img_io, format="JPEG", quality=quality)  # 1–95, lower = smaller file
+    img_io.seek(0)
+    
+    return send_file(img_io, mimetype="image/jpeg")
+
+@app.route("/clips")
+def clips_page():
+    return render_template("clips.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
