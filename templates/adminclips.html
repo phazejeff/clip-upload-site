@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clips Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        #app {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .clips-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .clips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+            width: 100%;
+            justify-items: center;
+        }
+
+        .clip-card {
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .clip-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            background-color: #2C2C2C;
+            filter: blur(5px);
+            transition: filter 0.3s ease;
+        }
+
+        .clip-image.loaded {
+            filter: blur(0);
+        }
+
+        .clip-body {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .clip-title-input {
+            width: 100%;
+            font-size: 1rem;
+            color: #BB86FC;
+            background: transparent;
+            border: none;
+            outline: none;
+            padding: 12px 12px 0 12px;
+            box-sizing: border-box;
+        }
+
+        .clip-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .save-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            background: #BB86FC;
+            color: black;
+            cursor: pointer;
+        }
+
+        .status {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .auth-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input {
+            padding: 8px;
+            border-radius: 6px;
+            border: none;
+        }
+
+        button {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            background: #BB86FC;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="auth" class="auth-screen">
+        <h2>Admin Login</h2>
+        <input id="password" type="password" placeholder="Password" onkeydown="if(event.key==='Enter') login()">
+        <button onclick="login()">Login</button>
+        <div id="auth-status"></div>
+    </div>
+
+    <div id="app" style="display:none;">
+        <div class="clips-container">
+            <h1 class="title">Admin - Clips</h1>
+            <div id="clips" class="clips-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        let PASSWORD = "";
+
+        async function login() {
+            const input = document.getElementById("password").value;
+            const status = document.getElementById("auth-status");
+
+            const formData = new FormData();
+            formData.append("password", input);
+
+            const res = await fetch("/checkpassword", {
+                method: "POST",
+                body: formData
+            });
+
+            if (res.ok) {
+                PASSWORD = input;
+                document.getElementById("auth").style.display = "none";
+                document.getElementById("app").style.display = "block";
+                loadClips();
+            } else {
+                status.innerText = "Wrong password";
+            }
+        }
+
+        async function saveClip(filename, title, isPublic, statusEl, button) {
+            button.disabled = true;
+            statusEl.innerText = "Saving...";
+
+            const formData = new FormData();
+            formData.append("password", PASSWORD);
+            formData.append("title", title);
+            formData.append("public", isPublic ? "1" : "0");
+
+            try {
+                const res = await fetch(`/api/clip/${filename}/edit`, {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (res.ok) {
+                    statusEl.innerText = "Saved ✅";
+                } else {
+                    statusEl.innerText = "Error ❌";
+                }
+            } catch {
+                statusEl.innerText = "Failed ❌";
+            }
+
+            button.disabled = false;
+        }
+
+        async function loadClips() {
+            const res = await fetch("/api/clips?password=" + PASSWORD);
+            const data = await res.json();
+
+            const container = document.getElementById("clips");
+
+            data.forEach(obj => {
+                const filename = Object.keys(obj)[0];
+                const title = obj[filename].title;
+                const public = obj[filename].public;
+
+                const hash = filename.split('.').slice(0, -1).join('.');
+
+                const card = document.createElement("div");
+                card.className = "clip-card";
+
+                card.style.cursor = "pointer";
+                card.onclick = (e) => {
+                    const tag = e.target.tagName;
+
+                    // ignore clicks on interactive elements
+                    if (tag === "INPUT" || tag === "BUTTON" || tag === "SPAN" || tag === "LABEL") {
+                        return;
+                    }
+
+                    window.location.href = `/clip/${filename}`;
+                };
+
+                // IMAGE (unchanged)
+                const img = document.createElement("img");
+                img.src = `/photo/${hash}.jpg`;
+                img.className = "clip-image";
+                img.loading = "lazy";
+                img.onload = () => img.classList.add("loaded");
+
+                // TITLE INPUT (looks identical to original text)
+                const titleInput = document.createElement("input");
+                titleInput.className = "clip-title-input";
+                titleInput.value = title;
+
+                // ADMIN BAR (overlay but no layout change)
+                const adminBar = document.createElement("div");
+                adminBar.className = "admin-bar";
+
+                const publicToggle = document.createElement("input");
+                publicToggle.type = "checkbox";
+                publicToggle.checked = public;
+
+                const saveBtn = document.createElement("button");
+                saveBtn.innerText = "Save";
+
+                const status = document.createElement("span");
+                status.className = "status";
+
+                saveBtn.onclick = async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation(); // IMPORTANT so card click doesn't trigger navigation
+
+                    saveBtn.disabled = true;
+                    status.innerText = "Saving...";
+
+                    const formData = new FormData();
+                    formData.append("password", PASSWORD);
+                    formData.append("title", titleInput.value);
+                    formData.append("public", publicToggle.checked ? "true" : "false");
+
+                    try {
+                        const res = await fetch(`/api/clip/${filename}/edit`, {
+                            method: "POST",
+                            body: formData
+                        });
+
+                        status.innerText = res.ok ? "Saved ✅" : "Error ❌";
+                    } catch {
+                        status.innerText = "Failed ❌";
+                    }
+
+                    saveBtn.disabled = false;
+                };
+
+                const publicWrap = document.createElement("div");
+                publicWrap.style.display = "flex";
+                publicWrap.style.alignItems = "center";
+                publicWrap.style.gap = "6px";
+
+                const publicLabel = document.createElement("span");
+                publicLabel.innerText = "Public:";
+
+                publicWrap.appendChild(publicLabel);
+                publicWrap.appendChild(publicToggle);
+
+                adminBar.appendChild(publicWrap);
+                adminBar.appendChild(saveBtn);
+                adminBar.appendChild(status);
+
+                // IMPORTANT: match original structure exactly
+                card.appendChild(img);
+                card.appendChild(titleInput);
+                card.appendChild(adminBar);
+
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>

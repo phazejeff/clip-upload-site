@@ -58,15 +58,18 @@ def clip(filename: str):
 
 @app.route("/api/clips")
 def clips_api():
+    admin = False
+    if request.args.get("password") == PASSWORD:
+        admin = True
     all_clips = []
     for filename in os.listdir(UPLOAD_DIR):
         if not filename.endswith(".txt") and not filename.endswith(".jpg"):
             hash = filename.removesuffix("." + filename.split(".")[-1])
             with open(os.path.join(UPLOAD_DIR, hash + ".txt")) as f:
-                title = f.readline()
-                public = f.readline()
-            if "true" in public:
-                all_clips.append({filename : title})
+                title = f.readline().strip()
+                public = f.readline().strip()
+            if "true" in public or admin:
+                all_clips.append({filename : {"title": title, "public": public}})
     return all_clips
 
 @app.route("/photo/<filename>")
@@ -86,6 +89,28 @@ def photo(filename: str, quality: int = 30):
 @app.route("/clips")
 def clips_page():
     return render_template("clips.html")
+
+@app.route("/api/clip/<filename>/edit", methods=["POST"])
+def edit_clip(filename: str):
+    if request.form.get("password") != PASSWORD:
+        return "Unauthorized", 401
+    extension = "." + filename.split(".")[-1]
+    hash = filename.removesuffix(extension)
+    f = open(UPLOAD_DIR + hash + ".txt", "w")
+    f.writelines([request.form.get("title"), "\n", request.form.get("public")])
+    f.close()
+    return "Success", 200
+
+@app.route("/clips/admin")
+def admin_clips():
+    return render_template("adminclips.html")
+
+@app.route("/checkpassword", methods=["POST"])
+def check_password():
+    if request.form.get("password") == PASSWORD:
+        return "Authorized", 200
+    else:
+        return "Unauthorized", 401
 
 if __name__ == "__main__":
     app.run(debug=True)

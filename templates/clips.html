@@ -77,7 +77,7 @@
 
             data.forEach(obj => {
                 const filename = Object.keys(obj)[0];   // e.g. "abc123.webm"
-                const title = obj[filename];
+                const title = obj[filename].title;
 
                 const hash = filename.split('.').slice(0, -1).join('.'); // handles dots safely
 
