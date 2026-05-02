@@ -23,4 +23,4 @@ COPY . .
 ARG workers=4
 ENV WORKERS=${workers}
 
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0", "app:app"]
+CMD ["uv", "run", "gunicorn", "-w", "4", "-b", "0.0.0.0", "app:app"]
