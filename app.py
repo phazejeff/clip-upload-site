@@ -79,7 +79,10 @@ def photo(filename: str, quality: int = 30):
     
     filepath = os.path.join(UPLOAD_DIR, filename)
     
-    img = Image.open(filepath)
+    try:
+        img = Image.open(filepath)
+    except Exception as e:
+        return send_file("static/finger smile resized.png", mimetype="image/png")
     img_io = io.BytesIO()
     img.save(img_io, format="JPEG", quality=quality)  # 1–95, lower = smaller file
     img_io.seek(0)
