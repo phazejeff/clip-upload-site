@@ -10,7 +10,7 @@ from video import write_first_frame
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 PASSWORD = os.environ["password"]
-UPLOAD_DIR = "./uploads/"
+UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
 app.config["UPLOAD_FOLDER"] = UPLOAD_DIR
 ALLOWED_EXTENSIONS = {".mp4", ".mov", ".avi", ".wmv", ".mkv", ".webm", ".m4v"}
 

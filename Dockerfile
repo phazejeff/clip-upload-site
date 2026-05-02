@@ -1,5 +1,7 @@
 FROM python:3
 
+WORKDIR /app
+
 RUN apt-get update && apt-get install -y \
     ffmpeg libglib2.0-0 libgl1-mesa-dri libglx-mesa0 curl \
     && rm -rf /var/lib/apt/lists/*
