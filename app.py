@@ -60,11 +60,11 @@ def clip(filename: str):
 def clips_api():
     all_clips = []
     for filename in os.listdir(UPLOAD_DIR):
-        if filename.endswith(".txt"):
-            hash = filename.removesuffix(".txt")
-            with open(os.path.join(UPLOAD_DIR, filename)) as f:
+        if not filename.endswith(".txt") and not filename.endswith(".jpg"):
+            hash = filename.removesuffix("." + filename.split(".")[-1])
+            with open(os.path.join(UPLOAD_DIR, hash + ".txt")) as f:
                 title = f.read()
-            all_clips.append({hash : title})
+            all_clips.append({filename : title})
     return all_clips
 
 @app.route("/photo/<filename>")

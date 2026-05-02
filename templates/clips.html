@@ -76,15 +76,17 @@
             const container = document.getElementById("clips");
 
             data.forEach(obj => {
-                const hash = Object.keys(obj)[0];
-                const title = obj[hash];
+                const filename = Object.keys(obj)[0];   // e.g. "abc123.webm"
+                const title = obj[filename];
+
+                const hash = filename.split('.').slice(0, -1).join('.'); // handles dots safely
 
                 const card = document.createElement("a");
-                card.href = `/clip/${hash}.mp4`;
+                card.href = `/clip/${filename}`;  // use full filename
                 card.className = "clip-card";
 
                 const img = document.createElement("img");
-                img.src = `/photo/${hash}.jpg`;
+                img.src = `/photo/${hash}.jpg`;   // thumbnail still uses hash
                 img.className = "clip-image";
                 img.loading = "lazy";
                 img.onload = () => {
