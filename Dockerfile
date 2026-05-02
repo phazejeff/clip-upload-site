@@ -1,17 +1,26 @@
 FROM python:3
 
-RUN apt-get update && apt-get install -y ffmpeg libglib2.0-0 libgl1-mesa-glx && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    ffmpeg libglib2.0-0 libgl1-mesa-dri libglx-mesa0 curl \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+# install uv
+ADD https://astral.sh/uv/install.sh /install.sh
+RUN sh /install.sh && rm /install.sh
+ENV PATH="/root/.local/bin:$PATH"
 
-RUN pip3 install -r requirements.txt
+WORKDIR /app
 
-COPY app.py .
-COPY video.py .
-COPY templates ./templates
-COPY static ./static
+# copy only dependency files first (better caching)
+COPY pyproject.toml uv.lock* ./
+
+# install dependencies into uv-managed environment
+RUN uv sync --frozen
+
+# copy app
+COPY . .
 
 ARG workers=4
 ENV WORKERS=${workers}
 
-CMD gunicorn -w $WORKERS -b 0.0.0.0 app:app
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0", "app:app"]

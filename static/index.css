@@ -75,6 +75,24 @@ label {
     margin-top: 1rem;
 }
 
+.checkbox-group {
+    text-align: left;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #BB86FC; /* matches your theme */
+}
+
 @media (max-width: 500px) {
     .title {
         font-size: 2rem;
