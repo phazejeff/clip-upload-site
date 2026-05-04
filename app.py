@@ -14,6 +14,9 @@ UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
 app.config["UPLOAD_FOLDER"] = UPLOAD_DIR
 ALLOWED_EXTENSIONS = {".mp4", ".mov", ".avi", ".wmv", ".mkv", ".webm", ".m4v"}
 
+if not os.path.exists(os.path.join(UPLOAD_DIR, "cache")):
+    os.makedirs(os.path.join(UPLOAD_DIR, "cache"))
+
 @app.route("/")
 def main():
     return render_template("index.html")
@@ -63,6 +66,8 @@ def clips_api():
         admin = True
     all_clips = []
     for filename in os.listdir(UPLOAD_DIR):
+        if filename == "cache":
+            continue
         if not filename.endswith(".txt") and not filename.endswith(".jpg"):
             hash = filename.removesuffix("." + filename.split(".")[-1])
             with open(os.path.join(UPLOAD_DIR, hash + ".txt")) as f:
@@ -74,20 +79,18 @@ def clips_api():
 
 @app.route("/photo/<filename>")
 def photo(filename: str, quality: int = 30):
-    if not filename.endswith(".jpg"):
-        return "Invalid filetype", 400
+    cache_path = os.path.join(UPLOAD_DIR, "cache", "thumb_" + filename)
+    if os.path.exists(cache_path):
+        return send_file(cache_path, mimetype="image/jpeg")
     
     filepath = os.path.join(UPLOAD_DIR, filename)
-    
     try:
         img = Image.open(filepath)
-    except Exception as e:
+        img.save(cache_path, format="JPEG", quality=quality)
+    except Exception:
         return send_file("static/finger smile resized.png", mimetype="image/png")
-    img_io = io.BytesIO()
-    img.save(img_io, format="JPEG", quality=quality)  # 1–95, lower = smaller file
-    img_io.seek(0)
     
-    return send_file(img_io, mimetype="image/jpeg")
+    return send_file(cache_path, mimetype="image/jpeg")
 
 @app.route("/clips")
 def clips_page():
