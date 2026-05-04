@@ -227,7 +227,7 @@
 
                 const publicToggle = document.createElement("input");
                 publicToggle.type = "checkbox";
-                publicToggle.checked = public;
+                publicToggle.checked = public === "true";
                 publicToggle.addEventListener("click", (e) => e.stopPropagation());
                 publicToggle.addEventListener("change", (e) => e.stopPropagation());
 

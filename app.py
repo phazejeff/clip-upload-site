@@ -1,11 +1,11 @@
-import io
-
 from flask import Flask, send_file
 from flask import render_template, request, redirect, flash, url_for, send_from_directory
 from PIL import Image
 import os
 import hashlib
 from video import process_video, write_first_frame
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -16,6 +16,23 @@ ALLOWED_EXTENSIONS = {".mp4", ".mov", ".avi", ".wmv", ".mkv", ".webm", ".m4v"}
 
 if not os.path.exists(os.path.join(UPLOAD_DIR, "cache")):
     os.makedirs(os.path.join(UPLOAD_DIR, "cache"))
+
+clips_cache: dict[str, dict] = {}  # { filename: { title, public } }
+
+def load_cache():
+    """Populate clips_cache from disk on startup."""
+    for filename in os.listdir(UPLOAD_DIR):
+        if filename in ("cache",) or filename.endswith((".txt", ".jpg")):
+            continue
+        hash = filename.removesuffix("." + filename.split(".")[-1])
+        txt_path = os.path.join(UPLOAD_DIR, hash + ".txt")
+        if os.path.exists(txt_path):
+            with open(txt_path) as f:
+                title = f.readline().strip()
+                public = f.readline().strip()
+            clips_cache[filename] = {"title": title, "public": public}
+
+load_cache()
 
 @app.route("/")
 def main():
@@ -40,12 +57,16 @@ def upload():
         f.writelines([name, "\n", request.form.get("public")])
         f.close()
         write_first_frame(UPLOAD_DIR, hash, extension)
-        
-        return redirect(url_for("clip", filename = hash + extension))
+
+        # Update cache
+        filename = hash + extension
+        clips_cache[filename] = {"title": name, "public": request.form.get("public")}
+
+        return redirect(url_for("clip", filename=filename))
     else:
         flash("Incorrect Password")
         return redirect("/")
-    
+
 @app.route("/file/<filename>")
 def file(filename: str):
     return send_from_directory(UPLOAD_DIR, filename)
@@ -54,29 +75,18 @@ def file(filename: str):
 def clip(filename: str):
     extension = "." + filename.split(".")[-1]
     hash = filename.removesuffix(extension)
-    f = open(os.path.join(UPLOAD_DIR, hash + ".txt"))
-    title = f.readline()
-    f.close()
+    title = clips_cache.get(filename, {}).get("title") or ""
     img = hash + ".jpg"
     return render_template("clip.html", title=title, filename=filename, img=img)
 
 @app.route("/api/clips")
 def clips_api():
-    admin = False
-    if request.args.get("password") == PASSWORD:
-        admin = True
-    all_clips = []
-    for filename in os.listdir(UPLOAD_DIR):
-        if filename == "cache":
-            continue
-        if not filename.endswith(".txt") and not filename.endswith(".jpg"):
-            hash = filename.removesuffix("." + filename.split(".")[-1])
-            with open(os.path.join(UPLOAD_DIR, hash + ".txt")) as f:
-                title = f.readline().strip()
-                public = f.readline().strip()
-            if "true" in public or admin:
-                all_clips.append({filename : {"title": title, "public": public}})
-    return all_clips
+    admin = request.args.get("password") == PASSWORD
+    return [
+        {filename: info}
+        for filename, info in clips_cache.items()
+        if "true" in info["public"] or admin
+    ]
 
 @app.route("/photo/<filename>")
 def photo(filename: str, quality: int = 30):
@@ -103,9 +113,13 @@ def edit_clip(filename: str):
         return "Unauthorized", 401
     extension = "." + filename.split(".")[-1]
     hash = filename.removesuffix(extension)
-    f = open(os.path.join(UPLOAD_DIR, hash + ".txt"), "w")
-    f.writelines([request.form.get("title"), "\n", request.form.get("public")])
-    f.close()
+    title = request.form.get("title")
+    public = request.form.get("public")
+    with open(os.path.join(UPLOAD_DIR, hash + ".txt"), "w") as f:
+        f.writelines([title, "\n", public])
+
+    clips_cache[filename] = {"title": title, "public": public}
+
     return "Success", 200
 
 @app.route("/clips/admin")
