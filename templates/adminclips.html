@@ -11,6 +11,8 @@
             padding: 0;
             display: flex;
             justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
         }
 
         #app {
@@ -99,6 +101,10 @@
             height: 100vh;
             flex-direction: column;
             gap: 10px;
+            width: 100%;
+            max-width: 300px;
+            box-sizing: border-box;
+            margin: 0 auto;
         }
 
         input {
@@ -287,6 +293,7 @@
                 container.appendChild(card);
             });
         }
+        document.getElementById("password").focus();
     </script>
 </body>
 </html>
