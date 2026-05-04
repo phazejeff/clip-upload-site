@@ -1,6 +1,6 @@
 services:
   flask-app:
-    image: phazejeff/clip-upload-site:latest
+    image: phazejeff/clip-upload-site:main
     ports:
       - "8000:8000"
     volumes:
