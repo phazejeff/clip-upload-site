@@ -31,6 +31,8 @@
             color: white;
             box-shadow: 0 6px 12px rgba(0,0,0,0.25);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none;
+            display: block;
         }
 
         .clip-card:hover {
@@ -196,20 +198,16 @@
 
                 const hash = filename.split('.').slice(0, -1).join('.');
 
-                const card = document.createElement("div");
+                const card = document.createElement("a");
                 card.className = "clip-card";
+                card.href = `/clip/${filename}`;
 
-                card.style.cursor = "pointer";
-                card.onclick = (e) => {
+                card.addEventListener("click", (e) => {
                     const tag = e.target.tagName;
-
-                    // ignore clicks on interactive elements
                     if (tag === "INPUT" || tag === "BUTTON" || tag === "SPAN" || tag === "LABEL") {
-                        return;
+                        e.preventDefault();
                     }
-
-                    window.location.href = `/clip/${filename}`;
-                };
+                });
 
                 // IMAGE (unchanged)
                 const img = document.createElement("img");
