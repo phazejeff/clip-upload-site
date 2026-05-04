@@ -5,7 +5,7 @@ from flask import render_template, request, redirect, flash, url_for, send_from_
 from PIL import Image
 import os
 import hashlib
-from video import write_first_frame
+from video import process_video, write_first_frame
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -35,6 +35,7 @@ def upload():
 
         file.save(os.path.join(UPLOAD_DIR, hash + extension))
         file.close()
+        process_video(os.path.join(UPLOAD_DIR, hash + extension))
         f = open(os.path.join(UPLOAD_DIR, hash + ".txt"), "w+")
         f.writelines([name, "\n", request.form.get("public")])
         f.close()
