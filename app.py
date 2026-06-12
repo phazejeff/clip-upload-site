@@ -75,7 +75,17 @@ def file(filename: str):
 def clip(filename: str):
     extension = "." + filename.split(".")[-1]
     hash = filename.removesuffix(extension)
-    title = clips_cache.get(filename, {}).get("title") or ""
+    if filename not in clips_cache:
+        txt_path = os.path.join(UPLOAD_DIR, hash + ".txt")
+        if os.path.exists(txt_path):
+            with open(txt_path) as f:
+                title = f.readline().strip()
+                public = f.readline().strip()
+            clips_cache[filename] = {"title": title, "public": public}
+        else:
+            title = ""
+    else:
+        title = clips_cache[filename].get("title") or ""
     img = hash + ".jpg"
     return render_template("clip.html", title=title, filename=filename, img=img)
 
