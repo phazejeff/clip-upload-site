@@ -21,9 +21,15 @@ clips_cache: dict[str, dict] = {}  # { filename: { title, public } }
 
 def load_cache():
     """Populate clips_cache from disk on startup."""
+    files = []
     for filename in os.listdir(UPLOAD_DIR):
         if filename in ("cache",) or filename.endswith((".txt", ".jpg")):
             continue
+        files.append(filename)
+
+    files.sort(key=lambda fn: os.path.getmtime(os.path.join(UPLOAD_DIR, fn)), reverse=True)
+
+    for filename in files:
         hash = filename.removesuffix("." + filename.split(".")[-1])
         txt_path = os.path.join(UPLOAD_DIR, hash + ".txt")
         if os.path.exists(txt_path):
@@ -31,6 +37,8 @@ def load_cache():
                 title = f.readline().strip()
                 public = f.readline().strip()
             clips_cache[filename] = {"title": title, "public": public}
+
+    print(clips_cache)
 
 load_cache()
 
