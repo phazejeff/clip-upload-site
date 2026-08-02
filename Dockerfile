@@ -1,5 +1,6 @@
 FROM python:3
 
+# Make sure to change the "volumes" section in the example docker-compose.yml
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
