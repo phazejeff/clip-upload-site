@@ -3,6 +3,7 @@ from flask import render_template, request, redirect, flash, url_for, send_from_
 from PIL import Image
 import os
 import hashlib
+from collections import OrderedDict
 from video import process_video, write_first_frame
 from dotenv import load_dotenv
 load_dotenv()
@@ -17,7 +18,11 @@ ALLOWED_EXTENSIONS = {".mp4", ".mov", ".avi", ".wmv", ".mkv", ".webm", ".m4v"}
 if not os.path.exists(os.path.join(UPLOAD_DIR, "cache")):
     os.makedirs(os.path.join(UPLOAD_DIR, "cache"))
 
-clips_cache: dict[str, dict] = {}  # { filename: { title, public } }
+clips_cache: OrderedDict[str, dict[str, str]] = OrderedDict()  # { filename: { title, public } }
+
+def cache_clip(filename: str, title: str, public: str) -> None:
+    clips_cache[filename] = {"title": title, "public": public}
+    clips_cache.move_to_end(filename, last=False)
 
 def load_cache():
     """Populate clips_cache from disk on startup."""
@@ -27,7 +32,7 @@ def load_cache():
             continue
         files.append(filename)
 
-    files.sort(key=lambda fn: os.path.getmtime(os.path.join(UPLOAD_DIR, fn)), reverse=True)
+    files.sort(key=lambda fn: os.path.getmtime(os.path.join(UPLOAD_DIR, fn)))
 
     for filename in files:
         hash = filename.removesuffix("." + filename.split(".")[-1])
@@ -36,7 +41,7 @@ def load_cache():
             with open(txt_path) as f:
                 title = f.readline().strip()
                 public = f.readline().strip()
-            clips_cache[filename] = {"title": title, "public": public}
+            cache_clip(filename, title, public)
 
     print(clips_cache)
 
@@ -70,7 +75,7 @@ def upload():
 
         # Update cache
         filename = hash + extension
-        clips_cache[filename] = {"title": name, "public": is_public}
+        cache_clip(filename, name, is_public)
 
         return redirect(url_for("clip", filename=filename))
     else:
@@ -91,7 +96,7 @@ def clip(filename: str):
             with open(txt_path) as f:
                 title = f.readline().strip()
                 public = f.readline().strip()
-            clips_cache[filename] = {"title": title, "public": public}
+            cache_clip(filename, title, public)
         else:
             title = ""
     else:
@@ -138,7 +143,7 @@ def edit_clip(filename: str):
     with open(os.path.join(UPLOAD_DIR, hash + ".txt"), "w") as f:
         f.writelines([title, "\n", public])
 
-    clips_cache[filename] = {"title": title, "public": public}
+    cache_clip(filename, title, public)
 
     return "Success", 200
 
