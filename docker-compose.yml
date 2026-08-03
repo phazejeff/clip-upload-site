@@ -4,6 +4,6 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - /local/uploads:/uploads
+      - /local/uploads:/app/uploads
     environment:
       - password=changeme
