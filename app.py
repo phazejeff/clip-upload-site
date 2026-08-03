@@ -62,13 +62,15 @@ def upload():
         file.close()
         process_video(os.path.join(UPLOAD_DIR, hash + extension))
         f = open(os.path.join(UPLOAD_DIR, hash + ".txt"), "w+")
-        f.writelines([name, "\n", request.form.get("public")])
+        is_public = request.form.get("public")
+        is_public = is_public if is_public else "false"
+        f.writelines([name, "\n", is_public])
         f.close()
         write_first_frame(UPLOAD_DIR, hash, extension)
 
         # Update cache
         filename = hash + extension
-        clips_cache[filename] = {"title": name, "public": request.form.get("public")}
+        clips_cache[filename] = {"title": name, "public": is_public}
 
         return redirect(url_for("clip", filename=filename))
     else:
